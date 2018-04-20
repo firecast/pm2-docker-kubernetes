@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pm2-nginx-server
+spec:
+  selector:
+    matchLabels:
+      app: pm2-nginx-server
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: pm2-nginx-server
+    spec:
+      containers:
+      - name: pm2-server
+        image: pm2-server
+        imagePullPolicy: Never
+      - name: nginx
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: nginx-proxy-config
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+      volumes:
+      - name: nginx-proxy-config
+        configMap:
+          name: pm2-nginx-config-map
