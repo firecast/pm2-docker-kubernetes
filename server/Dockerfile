@@ -1,3 +1,4 @@
+# Base image
 FROM node:alpine
 
 LABEL MAINTAINER="Amit Prabhu"

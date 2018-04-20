@@ -6,7 +6,7 @@ spec:
   selector:
     matchLabels:
       app: pm2-nginx-server
-  replicas: 1
+  replicas: 1 # Number of pods
   template:
     metadata:
       labels:
@@ -28,3 +28,17 @@ spec:
       - name: nginx-proxy-config
         configMap:
           name: pm2-nginx-config-map
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: pm2-server-service
+spec:
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+  selector:
+    app: pm2-server
+  type: NodePort
+---

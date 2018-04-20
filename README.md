@@ -15,9 +15,8 @@ kubectl get configmaps pm2-nginx-config-map -o yaml
 minikube start --kubernetes-version v1.10.0
 eval $(minikube docker-env)
 docker build -t pm2-server server/
-kubectl apply -f kube-development.yaml
+kubectl apply -f k8-dev-deployment.yaml
 kubectl describe deployment pm2-nginx-server
-kubectl expose deployment pm2-nginx-server --port=80 --type=NodePort
 ```
 
 # Changing contexts
