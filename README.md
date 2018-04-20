@@ -19,3 +19,25 @@ kubectl apply -f kube-development.yaml
 kubectl describe deployment pm2-nginx-server
 kubectl expose deployment pm2-nginx-server --port=80 --type=NodePort
 ```
+
+# Changing contexts
+```bash
+kubectl config get-contexts
+kubectl config use-context minikube
+```
+
+# Deployment
+```bash
+gcloud container clusters get-credentials <CLUSTER_NAME> --zone <ZONE> --project <PROJECT_ID>
+kubectl create configmap pm2-nginx-config-map --from-file=nginx.conf=nginx/nginx.conf
+kubectl apply -f k8-prod-deployment.yaml
+kubectl get ingress pm2-nginx-server-ingress
+```
+
+
+# Local PROD debugging
+```bash
+kubectl proxy
+kubectl config view
+```
+Open localhost:8001 in the browser. User token from the config view command

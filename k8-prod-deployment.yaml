@@ -1,0 +1,85 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pm2-server
+  namespace: default
+  labels:
+    app: pm2-server
+spec:
+  selector:
+    matchLabels:
+      app: pm2-server
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: pm2-server
+    spec:
+      containers:
+      - name: pm2-server
+        image: <IMAGE>
+      - name: nginx
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: nginx-proxy-config
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+      volumes:
+      - name: nginx-proxy-config
+        configMap:
+          name: pm2-nginx-config-map
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: pm2-server-hpa
+  namespace: default
+  labels:
+    app: pm2-server
+spec:
+  scaleTargetRef:
+    kind: Deployment
+    name: pm2-server
+    apiVersion: apps/v1
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 80
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: pm2-server-service
+spec:
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+  selector:
+    app: pm2-server
+  type: NodePort
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: certificate-secret
+  namespace: default
+data:
+  tls.crt: xxx
+  tls.key: xxx
+type: Opaque
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: pm2-server-ingress
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: pm2-socket-lb-ip
+spec:
+  tls:
+  - secretName: certificate-secret
+  backend:
+    serviceName: pm2-server-service
+    servicePort: 80
